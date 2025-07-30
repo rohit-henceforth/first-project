@@ -75,9 +75,9 @@ export class UsersService {
   }
 
   change(id: number, dto: ChangeUserDto) {
-    
+
     const user = this.users.findIndex(user => user.id === id);
-    
+
     if (user === -1) {
       return {
         message: "User not found",
@@ -85,7 +85,7 @@ export class UsersService {
         status: 404
       }
     }
-    
+
     this.users[user] = {
       id,
       ...dto
@@ -99,9 +99,9 @@ export class UsersService {
 
   }
 
-  remove(id : number){
+  remove(id: number) {
     const user = this.users.findIndex(user => user.id === id);
-    if(user === -1){
+    if (user === -1) {
       return {
         message: "User not found",
         data: null,
@@ -111,6 +111,73 @@ export class UsersService {
     this.users.splice(user, 1);
     return {
       message: "User deleted successfully",
+      data: null,
+      status: 200
+    }
+  }
+
+  filter(query: { name?: string, email?: string, role?: "admin" | "customer", age?: string }) {
+    const filteredUsers = this.users.filter(user => {
+      let match = true;
+      if (query?.email) {
+        match = match && user?.email === query?.email;
+      }
+      if (query?.name) {
+        match = match && user?.name?.toLowerCase() === query?.name?.toLowerCase();
+      }
+      if (query?.role) {
+        match = match && user?.role === query?.role;
+      }
+      if (query?.age) {
+        match = match && user?.age == query?.age;
+      }
+      return match;
+    });
+
+    if (!filteredUsers || filteredUsers?.length === 0) {
+      return {
+        message: "No users found",
+        data: null,
+        status: 404
+      }
+    }
+
+    return {
+      message: "Users fetched successfully",
+      data: filteredUsers,
+      status: 200
+    }
+  }
+
+  sort(sortBy: "createdAt" | "age" | "name" | "email") {
+
+    const sortedUsers = [...this.users].sort((a, b) => {
+      if (sortBy === "createdAt") {
+        return a?.id - b?.id;
+      }
+      if (typeof a[sortBy] === "string" || typeof b[sortBy] === "string") {
+        return a[sortBy].localeCompare(b[sortBy]);
+      }
+      if (a[sortBy] < b[sortBy]) {
+        return -1;
+      } else if (a[sortBy] > b[sortBy]) {
+        return 1;
+      }
+      return 0;
+    });
+
+    return {
+      message: "Users sorted successfully",
+      data: sortedUsers,
+      status: 200
+    }
+
+  }
+
+  deleteSome(ids : number[]){
+    this.users = this.users.filter(user => !ids.includes(user.id));
+    return {
+      message: "Users deleted successfully",
       data: null,
       status: 200
     }
