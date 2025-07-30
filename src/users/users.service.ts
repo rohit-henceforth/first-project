@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangeUserDto } from './dto/change-user.dto';
-import { stat } from 'fs';
 
 @Injectable()
 export class UsersService {
   private users: any[] = [];
+
   findAll() {
     return {
       message: "Users Fetched Successfully",
       data: this.users,
-      status : 200
+      status: 200
     };
   }
 
@@ -21,7 +21,7 @@ export class UsersService {
     return {
       message: "User created successfully",
       data: newUser,
-      status : 201
+      status: 201
     };
   }
 
@@ -42,11 +42,11 @@ export class UsersService {
     }
   }
 
-  update(id:number, dto : UpdateUserDto){
-    
+  update(id: number, dto: UpdateUserDto) {
+
     const user = this.users.find(user => user.id === id);
 
-    if(!user) {
+    if (!user) {
       return {
         message: "User not found",
         data: null,
@@ -54,14 +54,14 @@ export class UsersService {
       }
     }
 
-    this.users = this.users.map(user=>{
-      if(user.id === id){
+    this.users = this.users.map(user => {
+      if (user.id === id) {
         return {
           ...user,
           ...dto
         }
       }
-      return user ;
+      return user;
     })
 
     const userAfterUpdate = this.users.find(user => user.id === id)
@@ -74,7 +74,45 @@ export class UsersService {
 
   }
 
-  change(dto: ChangeUserDto) {
+  change(id: number, dto: ChangeUserDto) {
     
+    const user = this.users.findIndex(user => user.id === id);
+    
+    if (user === -1) {
+      return {
+        message: "User not found",
+        data: null,
+        status: 404
+      }
+    }
+    
+    this.users[user] = {
+      id,
+      ...dto
+    }
+
+    return {
+      message: "User changed successfully",
+      data: this.users[user],
+      status: 200
+    }
+
+  }
+
+  remove(id : number){
+    const user = this.users.findIndex(user => user.id === id);
+    if(user === -1){
+      return {
+        message: "User not found",
+        data: null,
+        status: 404
+      }
+    }
+    this.users.splice(user, 1);
+    return {
+      message: "User deleted successfully",
+      data: null,
+      status: 200
+    }
   }
 }

@@ -32,4 +32,10 @@ export class UsersController {
   change(@Param('id') id: string, @Body() changeUserDto: ChangeUserDto) {
     return this.usersService.change(Number(id), changeUserDto);
   }
+
+  @Delete(':id')
+  remove(@Param('id') id : number){
+    return this.usersService.remove(Number(id));
+  }
+  
 }
